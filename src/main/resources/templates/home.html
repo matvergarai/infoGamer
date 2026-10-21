@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main>
+    <section class="hero">
+        <div class="wrap hero-grid">
+            <div>
+                <p class="kicker">Cartelera gamer</p>
+                <h1>El lugar donde se publican las próximas partidas en serio.</h1>
+                <p class="lead">Ferias, LAN, torneos y talleres. En la portada ves lo que se viene. Para buscar por ciudad o abrir la ficha completa, entras con tu cuenta.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-lime" th:href="@{/eventos}">Buscar eventos</a>
+                    <a class="btn btn-ghost" th:href="@{/registro}" th:unless="${logueado}">Crear cuenta</a>
+                    <a class="btn btn-ghost" th:href="@{/perfil}" th:if="${logueado}">Ir a mi perfil</a>
+                </div>
+            </div>
+            <aside class="hero-panel">
+                <p class="panel-label">En cartelera</p>
+                <p class="panel-number" th:text="${proximos.size()}">0</p>
+                <p>eventos con fecha de hoy en adelante.</p>
+            </aside>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>Próximos eventos</h2>
+                <p>Lo que está más cerca en el calendario.</p>
+            </div>
+            <div class="cards" th:if="${!proximos.isEmpty()}">
+                <article class="card" th:each="evento : ${proximos}">
+                    <div class="card-top">
+                        <span class="emoji" th:text="${evento.emoji}">🎮</span>
+                        <span class="pill" th:text="${evento.categoria}">LAN</span>
+                    </div>
+                    <h3 th:text="${evento.titulo}">Evento</h3>
+                    <p class="meta">
+                        <span th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                        ·
+                        <span th:text="${#temporals.format(evento.hora, 'HH:mm')}">18:00</span>
+                        ·
+                        <span th:text="${evento.ciudad}">Santiago</span>
+                    </p>
+                    <a class="text-link" th:href="@{/eventos/{id}(id=${evento.id})}">Ver ficha</a>
+                </article>
+            </div>
+            <p class="empty" th:if="${proximos.isEmpty()}">No quedan eventos por delante. Vuelve a mirar la cartelera más tarde.</p>
+        </div>
+    </section>
+
+    <section class="section section-alt">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>Destacados</h2>
+                <p>Los que la comunidad está mirando primero.</p>
+            </div>
+            <div class="cards cards-featured">
+                <article class="card card-featured" th:each="evento : ${destacados}">
+                    <div class="card-top">
+                        <span class="emoji" th:text="${evento.emoji}">🏆</span>
+                        <span class="stamp">Destacado</span>
+                    </div>
+                    <h3 th:text="${evento.titulo}">Evento</h3>
+                    <p class="excerpt" th:text="${evento.descripcion}">Descripción</p>
+                    <p class="meta">
+                        <span th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                        ·
+                        <span th:text="${evento.ciudad}">Santiago</span>
+                    </p>
+                    <a class="text-link" th:href="@{/eventos/{id}(id=${evento.id})}">Ver ficha</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>Marcas en la escena</h2>
+                <p>Publicidad de quienes arman puestos en ferias y LAN.</p>
+            </div>
+            <div class="ads">
+                <article class="ad" th:each="marca : ${marcas}" th:classappend="${marca.tono}">
+                    <p class="ad-rubro" th:text="${marca.rubro}">Rubro</p>
+                    <h3 th:text="${marca.nombre}">Marca</h3>
+                    <p th:text="${marca.frase}">Frase</p>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

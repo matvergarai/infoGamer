@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' · Nexus'">Nexus</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header th:fragment="header" class="site-header">
+    <div class="wrap header-inner">
+        <a class="logo" th:href="@{/}">NEXUS<span>eventos</span></a>
+        <nav class="nav">
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/eventos}">Eventos</a>
+            <a th:href="@{/registro}" th:unless="${logueado}">Registro</a>
+            <a th:href="@{/perfil}" th:if="${logueado}">Mi perfil</a>
+        </nav>
+        <div class="header-actions">
+            <span class="who" th:if="${logueado}">
+                <span class="who-avatar" th:text="${avatarSesion}">🎮</span>
+                <span th:text="${nombreVisible}">jugador</span>
+            </span>
+            <a class="btn btn-lime" th:href="@{/login}" th:unless="${logueado}">Entrar</a>
+            <form th:if="${logueado}" th:action="@{/logout}" method="post">
+                <button class="btn btn-ghost" type="submit">Salir</button>
+            </form>
+        </div>
+    </div>
+</header>
+<footer th:fragment="footer" class="site-footer">
+    <div class="wrap footer-inner">
+        <p>Nexus reúne la cartelera de eventos gamer. Seguridad y calidad en el desarrollo de software.</p>
+        <p>Las fichas completas y el perfil quedan detrás del inicio de sesión.</p>
+    </div>
+</footer>
+</body>
+</html>

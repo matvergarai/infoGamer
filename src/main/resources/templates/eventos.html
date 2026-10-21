@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Eventos')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="section">
+    <div class="wrap">
+        <h1>Eventos publicados</h1>
+        <p class="lead">Filtra por categoría, fecha y ciudad. La ficha trae dirección, hora, organizadores, servicios y expositores.</p>
+        <p class="alert error" th:if="${param.noEncontrado}">Ese evento no está en la cartelera.</p>
+        <p class="alert error" th:if="${errorFecha}" th:text="${errorFecha}">Fecha inválida</p>
+
+        <form class="filters" th:action="@{/eventos}" method="get">
+            <label>
+                Categoría
+                <select name="categoria">
+                    <option value="" th:selected="${categoria == ''}">Todas</option>
+                    <option th:each="item : ${categorias}" th:value="${item}" th:text="${item}"
+                            th:selected="${item == categoria}"></option>
+                </select>
+            </label>
+            <label>
+                Fecha
+                <input type="date" name="fecha" th:value="${fecha}">
+            </label>
+            <label>
+                Ubicación
+                <input type="text" name="ubicacion" th:value="${ubicacion}" placeholder="Santiago, Viña del Mar...">
+            </label>
+            <button class="btn btn-lime" type="submit">Buscar</button>
+        </form>
+
+        <p class="result-count" th:if="${filtrado}" th:text="|${eventos.size()} resultado(s)|">0 resultados</p>
+
+        <div class="cards" th:if="${!eventos.isEmpty()}">
+            <article class="card" th:each="evento : ${eventos}">
+                <div class="card-top">
+                    <span class="emoji" th:text="${evento.emoji}">🎮</span>
+                    <span class="pill" th:text="${evento.categoria}">LAN</span>
+                </div>
+                <h2 th:text="${evento.titulo}">Evento</h2>
+                <p class="meta">
+                    <span th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                    ·
+                    <span th:text="${#temporals.format(evento.hora, 'HH:mm')}">18:00</span>
+                    ·
+                    <span th:text="${evento.ciudad}">Santiago</span>
+                </p>
+                <p class="excerpt" th:text="${evento.descripcion}">Descripción</p>
+                <a class="text-link" th:href="@{/eventos/{id}(id=${evento.id})}">Abrir ficha</a>
+            </article>
+        </div>
+        <p class="empty" th:if="${eventos.isEmpty()}">Ningún evento coincide con esa búsqueda.</p>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

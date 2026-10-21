@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mi perfil')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="section">
+    <div class="wrap form-wide">
+        <h1>Tu perfil</h1>
+        <p class="lead">Juegos, avatar, nombre de usuario y cómo quieres que te avisemos.</p>
+        <p class="alert ok" th:if="${param.ok}">Perfil guardado.</p>
+
+        <dl class="account">
+            <div>
+                <dt>Nombre</dt>
+                <dd th:text="${cuenta.nombre}">Nombre</dd>
+            </div>
+            <div>
+                <dt>Correo</dt>
+                <dd th:text="${cuenta.email}">correo</dd>
+            </div>
+            <div>
+                <dt>Usuario de acceso</dt>
+                <dd th:text="${cuenta.username}">usuario</dd>
+            </div>
+        </dl>
+
+        <form class="form-card" th:action="@{/perfil}" th:object="${perfilForm}" method="post">
+            <label for="nombreUsuario">Nombre de usuario</label>
+            <input id="nombreUsuario" type="text" th:field="*{nombreUsuario}" maxlength="20" required>
+            <p class="field-error" th:if="${#fields.hasErrors('nombreUsuario')}" th:errors="*{nombreUsuario}">Error</p>
+
+            <fieldset>
+                <legend>Avatar</legend>
+                <div class="avatar-grid">
+                    <label class="avatar-option" th:each="avatar : ${avatares}">
+                        <input type="radio" th:field="*{avatar}" th:value="${avatar}">
+                        <span th:text="${avatar}">🎮</span>
+                    </label>
+                </div>
+                <p class="field-error" th:if="${#fields.hasErrors('avatar')}" th:errors="*{avatar}">Error</p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Juegos de interés</legend>
+                <div class="checks">
+                    <label th:each="juego : ${juegosDisponibles}">
+                        <input type="checkbox" th:field="*{juegos}" th:value="${juego}">
+                        <span th:text="${juego}">Juego</span>
+                    </label>
+                </div>
+                <label for="otroJuego">Otro juego</label>
+                <input id="otroJuego" type="text" th:field="*{otroJuego}" placeholder="Si juegas otra cosa, escríbela aquí">
+                <p class="field-error" th:if="${#fields.hasErrors('otroJuego')}" th:errors="*{otroJuego}">Error</p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Notificaciones</legend>
+                <div class="checks checks-stack">
+                    <label>
+                        <input type="checkbox" th:field="*{notifEmail}">
+                        <span>Avisos por correo</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" th:field="*{notifEventos}">
+                        <span>Eventos en mi ciudad</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" th:field="*{notifNovedades}">
+                        <span>Novedades de marcas y ferias</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <button class="btn btn-lime" type="submit">Guardar perfil</button>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${evento.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="section">
+    <div class="wrap detail">
+        <p class="kicker" th:text="${evento.categoria}">eSports</p>
+        <h1>
+            <span th:text="${evento.emoji}">🎯</span>
+            <span th:text="${evento.titulo}">Evento</span>
+        </h1>
+        <p class="meta meta-large">
+            <span th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+            ·
+            <span th:text="${#temporals.format(evento.hora, 'HH:mm')}">18:00</span>
+            ·
+            <span th:text="${evento.ciudad}">Santiago</span>
+        </p>
+        <p class="lead" th:text="${evento.descripcion}">Descripción</p>
+
+        <div class="detail-grid">
+            <section>
+                <h2>Dónde</h2>
+                <p th:text="${evento.direccion}">Dirección</p>
+                <p th:text="${evento.ciudad}">Ciudad</p>
+            </section>
+            <section>
+                <h2>Organizadores</h2>
+                <ul>
+                    <li th:each="organizador : ${evento.organizadores}" th:text="${organizador}">Org</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Servicios</h2>
+                <ul class="services">
+                    <li th:each="servicio : ${evento.servicios}"
+                        th:classappend="${servicio.disponible} ? 'si' : 'no'">
+                        <span th:text="${servicio.disponible} ? 'Sí' : 'No'">Sí</span>
+                        <span th:text="${servicio.nombre}">Estacionamiento</span>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h2>Expositores</h2>
+                <ul>
+                    <li th:each="expositor : ${evento.expositores}" th:text="${expositor}">Persona</li>
+                </ul>
+            </section>
+        </div>
+        <p><a class="text-link" th:href="@{/eventos}">Volver al catálogo</a></p>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
