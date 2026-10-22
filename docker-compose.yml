@@ -7,6 +7,6 @@ services:
       ORACLE_USERNAME: ${ORACLE_USERNAME:-ADMIN}
       ORACLE_PASSWORD: ${ORACLE_PASSWORD}
       ORACLE_TNS_ALIAS: ${ORACLE_TNS_ALIAS:-infogamer_high}
-      ORACLE_TNS_ADMIN: /wallet
+      ORACLE_TNS_ADMIN: /tmp/wallet
     volumes:
       - ./wallet:/wallet:ro
