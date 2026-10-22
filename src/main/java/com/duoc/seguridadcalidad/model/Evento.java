@@ -2,47 +2,91 @@ package com.duoc.seguridadcalidad.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "evento")
 public class Evento {
 
-	private final Long id;
-	private final String titulo;
-	private final String categoria;
-	private final LocalDate fecha;
-	private final LocalTime hora;
-	private final String ciudad;
-	private final String direccion;
-	private final String descripcion;
-	private final List<String> organizadores;
-	private final boolean estacionamiento;
-	private final boolean locomocion;
-	private final boolean comidas;
-	private final boolean alojamiento;
-	private final List<String> expositores;
-	private final boolean destacado;
-	private final String emoji;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	public Evento(Long id, String titulo, String categoria, LocalDate fecha, LocalTime hora,
-			String ciudad, String direccion, String descripcion, List<String> organizadores,
-			boolean estacionamiento, boolean locomocion, boolean comidas, boolean alojamiento,
-			List<String> expositores, boolean destacado, String emoji) {
-		this.id = id;
-		this.titulo = titulo;
-		this.categoria = categoria;
-		this.fecha = fecha;
-		this.hora = hora;
-		this.ciudad = ciudad;
-		this.direccion = direccion;
-		this.descripcion = descripcion;
-		this.organizadores = List.copyOf(organizadores);
-		this.estacionamiento = estacionamiento;
-		this.locomocion = locomocion;
-		this.comidas = comidas;
-		this.alojamiento = alojamiento;
-		this.expositores = List.copyOf(expositores);
-		this.destacado = destacado;
-		this.emoji = emoji;
+	@Column(nullable = false, length = 140)
+	private String titulo;
+
+	@Column(nullable = false, length = 40)
+	private String categoria;
+
+	private LocalDate fecha;
+
+	private LocalTime hora;
+
+	@Column(length = 80)
+	private String ciudad;
+
+	@Column(length = 240)
+	private String direccion;
+
+	@Column(length = 1500)
+	private String descripcion;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "evento_organizador", joinColumns = @JoinColumn(name = "evento_id"))
+	@Column(name = "nombre", length = 120)
+	@OrderColumn(name = "orden")
+	private List<String> organizadores = new ArrayList<>();
+
+	private boolean estacionamiento;
+	private boolean locomocion;
+	private boolean comidas;
+	private boolean alojamiento;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "evento_expositor", joinColumns = @JoinColumn(name = "evento_id"))
+	@Column(name = "nombre", length = 120)
+	@OrderColumn(name = "orden")
+	private List<String> expositores = new ArrayList<>();
+
+	private boolean destacado;
+
+	@Column(length = 16)
+	private String emoji;
+
+	public static Evento crear(String titulo, String categoria, LocalDate fecha, LocalTime hora, String ciudad,
+			String direccion, String descripcion, List<String> organizadores, boolean estacionamiento,
+			boolean locomocion, boolean comidas, boolean alojamiento, List<String> expositores, boolean destacado,
+			String emoji) {
+		Evento evento = new Evento();
+		evento.titulo = titulo;
+		evento.categoria = categoria;
+		evento.fecha = fecha;
+		evento.hora = hora;
+		evento.ciudad = ciudad;
+		evento.direccion = direccion;
+		evento.descripcion = descripcion;
+		evento.organizadores = new ArrayList<>(organizadores);
+		evento.estacionamiento = estacionamiento;
+		evento.locomocion = locomocion;
+		evento.comidas = comidas;
+		evento.alojamiento = alojamiento;
+		evento.expositores = new ArrayList<>(expositores);
+		evento.destacado = destacado;
+		evento.emoji = emoji;
+		return evento;
 	}
 
 	public List<ServicioItem> getServicios() {

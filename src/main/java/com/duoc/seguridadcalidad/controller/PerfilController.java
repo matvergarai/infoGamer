@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.duoc.seguridadcalidad.model.PerfilForm;
-import com.duoc.seguridadcalidad.model.PerfilUsuario;
+import com.duoc.seguridadcalidad.model.Usuario;
 import com.duoc.seguridadcalidad.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -60,14 +60,14 @@ public class PerfilController {
 	}
 
 	private void preparar(String username, Model model, PerfilForm form) {
-		PerfilUsuario cuenta = usuarioService.obtener(username);
+		Usuario cuenta = usuarioService.obtener(username);
 		model.addAttribute("perfilForm", form);
 		model.addAttribute("cuenta", cuenta);
 		model.addAttribute("juegosDisponibles", JUEGOS);
 		model.addAttribute("avatares", AVATARES);
 	}
 
-	private PerfilForm formularioDesde(PerfilUsuario perfil) {
+	private PerfilForm formularioDesde(Usuario perfil) {
 		PerfilForm form = new PerfilForm();
 		form.setNombreUsuario(perfil.getNombreUsuario() == null ? "" : perfil.getNombreUsuario());
 		form.setAvatar(perfil.getAvatar() == null || perfil.getAvatar().isBlank() ? "🎮" : perfil.getAvatar());

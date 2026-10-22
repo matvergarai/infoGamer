@@ -2,71 +2,83 @@ package com.duoc.seguridadcalidad.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.duoc.seguridadcalidad.model.PerfilForm;
-import com.duoc.seguridadcalidad.model.PerfilUsuario;
 import com.duoc.seguridadcalidad.model.RegistroForm;
+import com.duoc.seguridadcalidad.model.Usuario;
+import com.duoc.seguridadcalidad.repository.UsuarioRepository;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
-	private final InMemoryUserDetailsManager usuarios;
+	private final UsuarioRepository usuarios;
 	private final PasswordEncoder passwordEncoder;
-	private final Map<String, PerfilUsuario> perfiles = new ConcurrentHashMap<>();
 
-	public UsuarioService(InMemoryUserDetailsManager usuarios, PasswordEncoder passwordEncoder) {
+	public UsuarioService(UsuarioRepository usuarios, PasswordEncoder passwordEncoder) {
 		this.usuarios = usuarios;
 		this.passwordEncoder = passwordEncoder;
-		sembrar("ana", "Ana Rojas", "ana@nexus.cl", "AnaR", "🦊",
-				List.of("Valorant", "League of Legends"), true, true, false);
-		sembrar("carlos", "Carlos Muñoz", "carlos@nexus.cl", "CarMun", "⚔️",
-				List.of("Counter-Strike 2", "Rocket League"), true, false, true);
-		sembrar("admin", "Valentina Soto", "admin@nexus.cl", "AdminNexus", "🏆",
-				List.of("Valorant", "EA Sports FC"), true, true, true);
 	}
 
+	@Override
+	public UserDetails loadUserByUsername(String username) {
+		Usuario usuario = usuarios.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException(username));
+		return User.builder()
+				.username(usuario.getUsername())
+				.password(usuario.getPassword())
+				.roles(usuario.getRol().split(","))
+				.build();
+	}
+
+	@Transactional
 	public void registrar(RegistroForm form) {
 		String email = form.getEmail().trim().toLowerCase();
-		if (usuarios.userExists(email)) {
+		if (usuarios.existsByUsername(email)) {
 			throw new IllegalStateException("Ese correo ya está registrado.");
 		}
-		usuarios.createUser(User.builder()
-				.username(email)
-				.password(passwordEncoder.encode(form.getPassword()))
-				.roles("USER")
-				.build());
-
-		PerfilUsuario perfil = new PerfilUsuario();
-		perfil.setUsername(email);
-		perfil.setNombre(form.getNombre().trim());
-		perfil.setEmail(email);
-		perfil.setNombreUsuario("");
-		perfil.setAvatar("🎮");
-		perfil.setJuegos(new ArrayList<>());
-		perfiles.put(email, perfil);
+		Usuario usuario = new Usuario();
+		usuario.setUsername(email);
+		usuario.setPassword(passwordEncoder.encode(form.getPassword()));
+		usuario.setRol("USER");
+		usuario.setNombre(form.getNombre().trim());
+		usuario.setEmail(email);
+		usuario.setNombreUsuario("");
+		usuario.setAvatar("🎮");
+		usuarios.save(usuario);
 	}
 
-	public PerfilUsuario obtener(String username) {
-		return perfiles.computeIfAbsent(username, this::perfilVacio);
+	@Transactional
+	public Usuario obtener(String username) {
+		return usuarios.findByUsername(username).orElseGet(() -> {
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword(passwordEncoder.encode(username));
+			usuario.setRol("USER");
+			usuario.setNombre(username);
+			usuario.setEmail(username.contains("@") ? username : "");
+			usuario.setNombreUsuario("");
+			usuario.setAvatar("🎮");
+			return usuarios.save(usuario);
+		});
 	}
 
+	@Transactional
 	public void actualizar(String username, PerfilForm form, List<String> catalogo) {
-		PerfilUsuario perfil = obtener(username);
+		Usuario perfil = obtener(username);
 		perfil.setNombreUsuario(form.getNombreUsuario().trim());
 		perfil.setAvatar(form.getAvatar());
 
 		List<String> juegos = new ArrayList<>();
 		if (form.getJuegos() != null) {
-			form.getJuegos().stream()
-					.filter(catalogo::contains)
-					.forEach(juegos::add);
+			form.getJuegos().stream().filter(catalogo::contains).forEach(juegos::add);
 		}
 		if (form.getOtroJuego() != null && !form.getOtroJuego().isBlank()) {
 			for (String extra : form.getOtroJuego().split(",")) {
@@ -76,14 +88,19 @@ public class UsuarioService {
 				}
 			}
 		}
-		perfil.setJuegos(juegos);
+		perfil.getJuegos().clear();
+		perfil.getJuegos().addAll(juegos);
 		perfil.setNotifEmail(form.isNotifEmail());
 		perfil.setNotifEventos(form.isNotifEventos());
 		perfil.setNotifNovedades(form.isNotifNovedades());
 	}
 
+	@Transactional(readOnly = true)
 	public String nombreVisible(String username) {
-		PerfilUsuario perfil = obtener(username);
+		Usuario perfil = usuarios.findByUsername(username).orElse(null);
+		if (perfil == null) {
+			return username;
+		}
 		if (perfil.getNombreUsuario() != null && !perfil.getNombreUsuario().isBlank()) {
 			return perfil.getNombreUsuario();
 		}
@@ -91,31 +108,5 @@ public class UsuarioService {
 			return perfil.getNombre();
 		}
 		return username;
-	}
-
-	private void sembrar(String username, String nombre, String email, String nombreUsuario, String avatar,
-			List<String> juegos, boolean notifEmail, boolean notifEventos, boolean notifNovedades) {
-		PerfilUsuario perfil = new PerfilUsuario();
-		perfil.setUsername(username);
-		perfil.setNombre(nombre);
-		perfil.setEmail(email);
-		perfil.setNombreUsuario(nombreUsuario);
-		perfil.setAvatar(avatar);
-		perfil.setJuegos(new ArrayList<>(juegos));
-		perfil.setNotifEmail(notifEmail);
-		perfil.setNotifEventos(notifEventos);
-		perfil.setNotifNovedades(notifNovedades);
-		perfiles.put(username, perfil);
-	}
-
-	private PerfilUsuario perfilVacio(String username) {
-		PerfilUsuario perfil = new PerfilUsuario();
-		perfil.setUsername(username);
-		perfil.setNombre(username);
-		perfil.setEmail(username.contains("@") ? username : "");
-		perfil.setNombreUsuario("");
-		perfil.setAvatar("🎮");
-		perfil.setJuegos(new ArrayList<>());
-		return perfil;
 	}
 }
