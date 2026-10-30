@@ -11,19 +11,29 @@
             <span th:text="${evento.titulo}">Evento</span>
         </h1>
         <p class="meta meta-large">
+            <span th:text="${evento.videojuego}">Valorant</span>
+            ·
             <span th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
             ·
             <span th:text="${#temporals.format(evento.hora, 'HH:mm')}">18:00</span>
             ·
-            <span th:text="${evento.ciudad}">Santiago</span>
+            <span th:text="${evento.modalidad}">Presencial</span>
         </p>
+        <img class="photo photo-lg" th:src="@{${evento.foto}}" th:alt="${'Fotografía de ' + evento.titulo}">
         <p class="lead" th:text="${evento.descripcion}">Descripción</p>
 
         <div class="detail-grid">
             <section>
                 <h2>Dónde</h2>
-                <p th:text="${evento.direccion}">Dirección</p>
-                <p th:text="${evento.ciudad}">Ciudad</p>
+                <p th:if="${evento.direccion != null}" th:text="${evento.direccion}">Dirección</p>
+                <p>
+                    <span th:text="${evento.ciudad}">Ciudad</span>,
+                    <span th:text="${evento.pais}">Chile</span>
+                </p>
+                <p th:if="${evento.enlace != null}">
+                    Enlace de acceso:
+                    <a th:href="${evento.enlace}" th:text="${evento.enlace}">https://nexus.cl</a>
+                </p>
             </section>
             <section>
                 <h2>Organizadores</h2>
@@ -32,23 +42,15 @@
                 </ul>
             </section>
             <section>
-                <h2>Servicios</h2>
-                <ul class="services">
-                    <li th:each="servicio : ${evento.servicios}"
-                        th:classappend="${servicio.disponible} ? 'si' : 'no'">
-                        <span th:text="${servicio.disponible} ? 'Sí' : 'No'">Sí</span>
-                        <span th:text="${servicio.nombre}">Estacionamiento</span>
-                    </li>
-                </ul>
+                <h2>Requisitos de participación</h2>
+                <p th:text="${evento.requisitos}">Requisitos</p>
             </section>
             <section>
-                <h2>Expositores</h2>
-                <ul>
-                    <li th:each="expositor : ${evento.expositores}" th:text="${expositor}">Persona</li>
-                </ul>
+                <h2>Inscripción</h2>
+                <p th:text="${evento.inscripcion}">Inscripción</p>
             </section>
         </div>
-        <p><a class="text-link" th:href="@{/eventos}">Volver al catálogo</a></p>
+        <p><a class="text-link" th:href="@{/eventos}">Volver a la búsqueda</a></p>
     </div>
 </main>
 <footer th:replace="~{fragments/layout :: footer}"></footer>

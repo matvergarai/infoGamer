@@ -17,8 +17,8 @@ public class HomeController {
 
 	@GetMapping({ "/", "/home" })
 	public String home(Model model) {
-		model.addAttribute("proximos", eventoService.proximos());
-		model.addAttribute("destacados", eventoService.destacados());
+		model.addAttribute("recientes", eventoService.proximos());
+		model.addAttribute("populares", eventoService.destacados());
 		model.addAttribute("marcas", eventoService.marcas());
 		return "home";
 	}

@@ -6,7 +6,7 @@
 <main class="section">
     <div class="wrap narrow">
         <h1>Entrar a Nexus</h1>
-        <p class="lead">Con una sesión activa puedes buscar eventos y armar tu perfil.</p>
+        <p class="lead">Con una sesión activa puedes abrir la ficha de cada evento. La API <code>POST /api/login</code> devuelve un token JWT para el detalle privado.</p>
 
         <p class="alert error" th:if="${param.error}">Usuario o contraseña incorrectos.</p>
         <p class="alert ok" th:if="${param.logout}">Sesión cerrada.</p>

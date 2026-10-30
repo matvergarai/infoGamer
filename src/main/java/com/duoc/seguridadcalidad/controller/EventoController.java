@@ -21,10 +21,10 @@ public class EventoController {
 	}
 
 	@GetMapping("/eventos")
-	public String listar(@RequestParam(required = false) String categoria,
-			@RequestParam(required = false) String fecha,
-			@RequestParam(required = false) String ubicacion,
-			Model model) {
+	public String listar(@RequestParam(required = false) String nombre,
+			@RequestParam(required = false) String videojuego, @RequestParam(required = false) String categoria,
+			@RequestParam(required = false) String lugar, @RequestParam(required = false) String fecha,
+			@RequestParam(required = false) String modalidad, Model model) {
 		LocalDate fechaBuscada = null;
 		if (fecha != null && !fecha.isBlank()) {
 			try {
@@ -35,14 +35,25 @@ public class EventoController {
 			}
 		}
 
-		String categoriaLimpia = categoria == null ? "" : categoria;
-		String ubicacionLimpia = ubicacion == null ? "" : ubicacion;
-		model.addAttribute("eventos", eventoService.buscar(categoriaLimpia, fechaBuscada, ubicacionLimpia));
+		String nombreLimpio = texto(nombre);
+		String videojuegoLimpio = texto(videojuego);
+		String categoriaLimpia = texto(categoria);
+		String lugarLimpio = texto(lugar);
+		String modalidadLimpia = texto(modalidad);
+		model.addAttribute("eventos", eventoService.buscar(nombreLimpio, videojuegoLimpio, categoriaLimpia, lugarLimpio,
+				fechaBuscada, modalidadLimpia));
 		model.addAttribute("categorias", eventoService.categorias());
+		model.addAttribute("videojuegos", eventoService.videojuegos());
+		model.addAttribute("modalidades", eventoService.modalidades());
+		model.addAttribute("nombre", nombreLimpio);
+		model.addAttribute("videojuego", videojuegoLimpio);
 		model.addAttribute("categoria", categoriaLimpia);
+		model.addAttribute("lugar", lugarLimpio);
 		model.addAttribute("fecha", fecha == null ? "" : fecha);
-		model.addAttribute("ubicacion", ubicacionLimpia);
-		model.addAttribute("filtrado", !categoriaLimpia.isBlank() || fechaBuscada != null || !ubicacionLimpia.isBlank());
+		model.addAttribute("modalidad", modalidadLimpia);
+		model.addAttribute("filtrado", !nombreLimpio.isBlank() || !videojuegoLimpio.isBlank()
+				|| !categoriaLimpia.isBlank() || !lugarLimpio.isBlank() || fechaBuscada != null
+				|| !modalidadLimpia.isBlank());
 		return "eventos";
 	}
 
@@ -54,5 +65,9 @@ public class EventoController {
 					return "evento";
 				})
 				.orElse("redirect:/eventos?noEncontrado");
+	}
+
+	private static String texto(String valor) {
+		return valor == null ? "" : valor;
 	}
 }

@@ -45,13 +45,16 @@ public class EventoService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<Evento> buscar(String categoria, LocalDate fecha, String ubicacion) {
-		String ciudad = ubicacion == null ? "" : ubicacion.trim().toLowerCase();
+	public List<Evento> buscar(String nombre, String videojuego, String categoria, String lugar, LocalDate fecha,
+			String modalidad) {
 		return eventos.findAll().stream()
-				.filter(evento -> categoria == null || categoria.isBlank()
-						|| evento.getCategoria().equalsIgnoreCase(categoria))
+				.filter(evento -> contiene(evento.getTitulo(), nombre))
+				.filter(evento -> contiene(evento.getVideojuego(), videojuego))
+				.filter(evento -> igual(evento.getCategoria(), categoria))
+				.filter(evento -> igual(evento.getModalidad(), modalidad))
 				.filter(evento -> fecha == null || evento.getFecha().equals(fecha))
-				.filter(evento -> ciudad.isEmpty() || evento.getCiudad().toLowerCase().contains(ciudad))
+				.filter(evento -> lugar == null || lugar.isBlank()
+						|| contiene(evento.getCiudad(), lugar) || contiene(evento.getPais(), lugar))
 				.sorted(Comparator.comparing(Evento::getFecha).thenComparing(Evento::getHora))
 				.toList();
 	}
@@ -66,7 +69,25 @@ public class EventoService {
 		return eventos.findAll().stream().map(Evento::getCategoria).distinct().sorted().toList();
 	}
 
+	@Transactional(readOnly = true)
+	public List<String> videojuegos() {
+		return eventos.findAll().stream().map(Evento::getVideojuego).distinct().sorted().toList();
+	}
+
+	public List<String> modalidades() {
+		return List.of("Presencial", "Online");
+	}
+
 	public List<Marca> marcas() {
 		return marcas;
+	}
+
+	private static boolean igual(String valor, String filtro) {
+		return filtro == null || filtro.isBlank() || (valor != null && valor.equalsIgnoreCase(filtro.trim()));
+	}
+
+	private static boolean contiene(String valor, String filtro) {
+		return filtro == null || filtro.isBlank()
+				|| (valor != null && valor.toLowerCase().contains(filtro.trim().toLowerCase()));
 	}
 }

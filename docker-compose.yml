@@ -1,12 +1,25 @@
 services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: recetas
+      MYSQL_USER: recetas
+      MYSQL_PASSWORD: recetas
+      MYSQL_ROOT_PASSWORD: recetas
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-precetas"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
   app:
     build: .
     ports:
       - "8080:8080"
     environment:
-      ORACLE_USERNAME: ${ORACLE_USERNAME:-ADMIN}
-      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
-      ORACLE_TNS_ALIAS: ${ORACLE_TNS_ALIAS:-infogamer_high}
-      ORACLE_TNS_ADMIN: /tmp/wallet
-    volumes:
-      - ./wallet:/wallet:ro
+      SPRING_PROFILES_ACTIVE: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/recetas?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      db:
+        condition: service_healthy

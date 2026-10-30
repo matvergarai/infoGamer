@@ -28,6 +28,9 @@ public class Evento {
 	@Column(nullable = false, length = 140)
 	private String titulo;
 
+	@Column(length = 80)
+	private String videojuego;
+
 	@Column(nullable = false, length = 40)
 	private String categoria;
 
@@ -36,13 +39,28 @@ public class Evento {
 	private LocalTime hora;
 
 	@Column(length = 80)
+	private String pais;
+
+	@Column(length = 80)
 	private String ciudad;
 
 	@Column(length = 240)
 	private String direccion;
 
+	@Column(length = 240)
+	private String enlace;
+
+	@Column(length = 20)
+	private String modalidad;
+
 	@Column(length = 1500)
 	private String descripcion;
+
+	@Column(length = 500)
+	private String requisitos;
+
+	@Column(length = 500)
+	private String inscripcion;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "evento_organizador", joinColumns = @JoinColumn(name = "evento_id"))
@@ -66,18 +84,28 @@ public class Evento {
 	@Column(length = 16)
 	private String emoji;
 
-	public static Evento crear(String titulo, String categoria, LocalDate fecha, LocalTime hora, String ciudad,
-			String direccion, String descripcion, List<String> organizadores, boolean estacionamiento,
+	@Column(length = 80)
+	private String foto;
+
+	public static Evento crear(String titulo, String videojuego, String categoria, LocalDate fecha, LocalTime hora,
+			String pais, String ciudad, String direccion, String enlace, String modalidad, String descripcion,
+			String requisitos, String inscripcion, List<String> organizadores, boolean estacionamiento,
 			boolean locomocion, boolean comidas, boolean alojamiento, List<String> expositores, boolean destacado,
-			String emoji) {
+			String emoji, String foto) {
 		Evento evento = new Evento();
 		evento.titulo = titulo;
+		evento.videojuego = videojuego;
 		evento.categoria = categoria;
 		evento.fecha = fecha;
 		evento.hora = hora;
+		evento.pais = pais;
 		evento.ciudad = ciudad;
 		evento.direccion = direccion;
+		evento.enlace = enlace;
+		evento.modalidad = modalidad;
 		evento.descripcion = descripcion;
+		evento.requisitos = requisitos;
+		evento.inscripcion = inscripcion;
 		evento.organizadores = new ArrayList<>(organizadores);
 		evento.estacionamiento = estacionamiento;
 		evento.locomocion = locomocion;
@@ -86,6 +114,7 @@ public class Evento {
 		evento.expositores = new ArrayList<>(expositores);
 		evento.destacado = destacado;
 		evento.emoji = emoji;
+		evento.foto = foto;
 		return evento;
 	}
 
@@ -105,6 +134,10 @@ public class Evento {
 		return titulo;
 	}
 
+	public String getVideojuego() {
+		return videojuego;
+	}
+
 	public String getCategoria() {
 		return categoria;
 	}
@@ -117,6 +150,10 @@ public class Evento {
 		return hora;
 	}
 
+	public String getPais() {
+		return pais;
+	}
+
 	public String getCiudad() {
 		return ciudad;
 	}
@@ -125,8 +162,24 @@ public class Evento {
 		return direccion;
 	}
 
+	public String getEnlace() {
+		return enlace;
+	}
+
+	public String getModalidad() {
+		return modalidad;
+	}
+
 	public String getDescripcion() {
 		return descripcion;
+	}
+
+	public String getRequisitos() {
+		return requisitos;
+	}
+
+	public String getInscripcion() {
+		return inscripcion;
 	}
 
 	public List<String> getOrganizadores() {
@@ -159,5 +212,9 @@ public class Evento {
 
 	public String getEmoji() {
 		return emoji;
+	}
+
+	public String getFoto() {
+		return foto;
 	}
 }
